@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dompet Anak Kos</title>
+
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+/* ===== BASE ===== */
+body {
+  font-family: sans-serif;
+  background: #F7F9FC;
+  color: #333333;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 12px;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: #FFFFFF;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #E0E0E0;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+}
+
+/* ===== FORM ===== */
+input,
+select {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #E0E0E0;
+  background: #FFFFFF;
+}
+
+/* ===== STATUS ===== */
+.status-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.status-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+/* ===== BUTTON ===== */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+}
+
+button:active {
+  transform: scale(0.96);
+  filter: brightness(0.9);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+}
+
+/* ===== ACTION ROW ===== */
+.action-row {
+  display: flex;
+  gap: 8px;
+}
+
+.action-row button {
+  flex: 1;
+}
+
+/* ===== BUTTON VARIANT ===== */
+.btn-income { background: #4CAF50; color: #FFF; }
+.btn-expense { background: #E53935; color: #FFF; }
+.btn-primary { background: #4F8EF7; color: #FFF; }
+.btn-danger  { background: #E53935; color: #FFF; }
+
+/* ===== POPUP ===== */
+#popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+#popup-box {
+  background: #FFFFFF;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 80%;
+  max-width: 300px;
+  border-top: 6px solid #4F8EF7;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* ===== EXP BAR ===== */
+.exp-bar {
+  width: 100%;
+  height: 10px;
+  background: #E5E7EB;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+#exp-fill {
+  height: 100%;
+  width: 0%;
+  background: #3B82F6;
+  transition: width 0.3s ease;
+}
+
+/* ===== SUMMARY ===== */
+.summary-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.summary-item {
+  flex: 1;
+  background: #F9FAFB;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.summary-item span {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.summary-item strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+}
+
+.summary-item.income strong { color: #16A34A; }
+.summary-item.expense strong { color: #DC2626; }
+.summary-item.net strong { color: #2563EB; }
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table thead th {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  padding: 8px;
+  border-bottom: 1px solid #E5E7EB;
+  position: sticky;
+  top: 0;
+  background: inherit;
+  z-index: 1;
+}
+
+table td {
+  text-align: center;
+  padding: 10px 8px;
+  font-size: 14px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+table tr:last-child td {
+  border-bottom: none;
+}
+
+tr.income-row td {
+  background: rgba(22, 163, 74, 0.04);
+}
+
+tr.expense-row td {
+  background: rgba(220, 38, 38, 0.04);
+}
+
+/* ===== FILTER BULAN ===== */
+.filter-bulan {
+  width: auto;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+/* ===== ACTION ICON ===== */
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  color: #374151;
+}
+
+/* ===== DARK MODE ===== */
+body.dark {
+  background: #0F172A;
+  color: #E5E7EB;
+}
+
+body.dark .card {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+body.dark input,
+body.dark select {
+  background: #1E293B;
+  color: #E5E7EB;
+  border-color: #334155;
+}
+
+body.dark #popup-box {
+  background: #1E293B;
+  color: #E5E7EB;
+  border-top-color: #38BDF8;
+}
+
+body.dark .exp-bar {
+  background: #334155;
+}
+
+body.dark .summary-item {
+  background: #1E293B;
+}
+
+body.dark table thead th {
+  color: #E5E7EB;
+  border-bottom: 1px solid #334155;
+}
+
+body.dark table td {
+  border-bottom: 1px solid #1E293B;
+}
+
+body.dark .action-btn {
+  color: #CBD5E1;
+}
+
+body.dark .action-btn.delete {
+  color: #F87171;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header style="position: relative; display: flex; align-items: center; height: 50px;">
+  <h1 style="
+    position: absolute;
+    margin: 0;
+    font-size: 24px;
+  ">Dompet Anak Kos</h1>
+
+  <button class="icon-btn" onclick="toggleDarkMode()" id="dark-toggle" style="margin-left: auto;">
+    🌙
+  </button>
+</header>
+
+  <!-- ===== STATUS ===== -->
+  <div class="card">
+    <h3 id="greeting">Halo</h3>
+
+    <small>
+      Status kamu saat ini adalah,
+    </small>
+
+    <div class="status-meta" style="margin-top:6px;">
+      <span id="semester">Mahasiswa Baru di Kos</span>
+      <span id="streak"></span>
+    </div>
+
+    <div style="margin-top:8px;">
+      <small id="exp">Exp: 0</small>
+      <div class="exp-bar">
+        <div id="exp-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AKSI ===== -->
+  <div class="card">
+    <h3>Catatan Harian</h3>
+
+    <div class="action-row">
+      <button class="btn-income" onclick="bukaForm('income')">
+        + Catat Pemasukan
+      </button>
+      <button class="btn-expense" onclick="bukaForm('expense')">
+        + Catat Pengeluaran
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== FORM TRANSAKSI ===== -->
+  <div id="form-transaksi" class="card" style="display:none;">
+    <h3>Transaksi Harian</h3>
+
+    <p id="form-title" class="form-hint">
+      Catat seperlunya, biar kondisi kos tetap aman.
+    </p>
+
+    <!-- Tanggal -->
+    <input
+      type="date"
+      id="tanggal-transaksi"
+      title="Tanggal dicatat"
+      style="margin-bottom:8px;"
+    />
+
+    <input
+      type="text"
+      id="nominal"
+      placeholder="Nominal"
+      inputmode="numeric"
+      oninput="formatRupiahInput(this)"
+    />
+
+    <input
+      type="text"
+      id="keterangan"
+      placeholder="Keterangan (opsional)"
+      style="margin-top:8px;"
+    />
+
+    <button class="btn-primary" onclick="simpanTransaksi()">Simpan</button>
+    <button onclick="batalTransaksi()">Batal</button>
+  </div>
+
+  <!-- ===== RINGKASAN ===== -->
+  <div class="card">
+    <h3 id="judul-ringkasan">Ringkasan Bulan Ini</h3>
+
+    <div class="summary-row">
+      <div class="summary-item income">
+        <span>Pemasukan</span>
+        <strong id="bulan-income">Rp 0</strong>
+      </div>
+
+      <div class="summary-item expense">
+        <span>Pengeluaran</span>
+        <strong id="bulan-expense">Rp 0</strong>
+      </div>
+
+      <div class="summary-item net">
+        <span>Sisa</span>
+        <strong id="bulan-net">Rp 0</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIWAYAT ===== -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <h3 id="judul-riwayat">Riwayat Catatan</h3>
+
+      <select
+        id="filter-riwayat-bulan"
+        class="filter-bulan"
+        onchange="tampilkanRiwayat()">
+      </select>
+    </div>
+
+    <div style="overflow-x:auto; margin-top:8px;">
+      <table id="riwayat-table">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Transaksi</th>
+            <th>Nominal</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="riwayat-body"></tbody>
+      </table>
+    </div>
+
+    <button class="btn-primary" onclick="exportPDF()" style="margin-top:12px;">
+      Export PDF
+    </button>
+  </div>
+
+  <!-- ===== RESET ===== -->
+  <div class="card">
+    <button class="btn-danger" onclick="konfirmasiReset()">
+      Pindah Kos
+    </button>
+  </div>
+
+  <!-- ===== POPUP ===== -->
+  <div id="popup">
+    <div id="popup-box">
+      <p id="popup-text"></p>
+
+      <div class="action-row" style="margin-top:12px;">
+        <button id="popup-ok" onclick="popupOk()">OK</button>
+        <button id="popup-cancel" onclick="popupBatal()">Batal</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ======================================================
+   DATA
+====================================================== */
+let level = parseInt(localStorage.getItem("level")) || 1;
+let exp = parseInt(localStorage.getItem("exp")) || 0;
+let expTarget = parseInt(localStorage.getItem("expTarget")) || hitungTargetExp(level);
+let streak = parseInt(localStorage.getItem("streak")) || 0;
+let lastDate = localStorage.getItem("lastDate");
+let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
+
+let pendingExp = 0;
+let jenisTransaksi = "";
+
+let userName = localStorage.getItem("userName");
+let indexTransaksiAktif = null;
+
+const popup = document.getElementById("popup");
+const popupText = document.getElementById("popup-text");
+const btnOk = document.getElementById("popup-ok");
+const btnCancel = document.getElementById("popup-cancel");
+let modePopup = "info";
+
+/* ======================================================
+   UTIL
+====================================================== */
+function hariIni() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0'); // bulan 0-11
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function simpanData() {
+  localStorage.setItem("level", level);
+  localStorage.setItem("exp", exp);
+  localStorage.setItem("expTarget", expTarget);
+  localStorage.setItem("streak", streak);
+  localStorage.setItem("lastDate", lastDate);
+  localStorage.setItem("transaksi", JSON.stringify(transaksi));
+}
+
+const namaBulan = [
+  "Januari","Februari","Maret","April","Mei","Juni",
+  "Juli","Agustus","September","Oktober","November","Desember"
+];
+
+function formatLabelBulan(yyyyMm) {
+  let [y, m] = yyyyMm.split("-");
+  return namaBulan[parseInt(m) - 1] + " " + y;
+}
+
+function bulanIni() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${yyyy}-${mm}`;
+}
+
+function labelBulanIni() {
+  let d = new Date();
+  return namaBulan[d.getMonth()] + " " + d.getFullYear();
+}
+
+function initFilterRiwayatBulan() {
+  let select = document.getElementById("filter-riwayat-bulan");
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  let bulanSet = new Set();
+
+  transaksi.forEach(t => {
+    bulanSet.add(t.date.slice(0, 7));
+  });
+
+  if (bulanSet.size === 0) {
+    bulanSet.add(bulanIni());
+  }
+
+  let daftarBulan = Array.from(bulanSet).sort();
+
+  daftarBulan.forEach(bulan => {
+    let opt = document.createElement("option");
+    opt.value = bulan;
+    opt.innerText = formatLabelBulan(bulan);
+    select.appendChild(opt);
+  });
+
+  select.value = bulanIni();
+}
+
+function formatTanggalPendek(dateStr) {
+  let d = new Date(dateStr);
+  return d.getDate() + " " + namaBulan[d.getMonth()].slice(0, 3);
+}
+
+function hitungTargetExp(level) {
+  if (level <= 2) return 200;
+  if (level <= 4) return 300;
+  if (level <= 6) return 400;
+  return 500;
+}
+
+function tambahExp(jumlah) {
+  exp += jumlah;
+
+  if (exp >= expTarget) {
+    exp -= expTarget;
+    level++;
+    expTarget = hitungTargetExp(level);
+
+    if (level === 4 || level === 7 || level === 9) {
+      bukaPopup(
+      "Pencapaian Besar!\n\n" +
+      getLevelTitle(level) + "\n\n" +
+      "Kamu sudah melewati fase penting hidup anak kos."
+      );
+    } else {
+      bukaPopup(
+      "Naik Tingkat!\n\n" +
+      getLevelTitle(level)
+      );
+}
+  }
+
+  simpanData();
+  updateUI();
+}
+
+/* ======================================================
+   UI
+====================================================== */
+function updateUI() {
+  updateGreeting();
+
+  document.getElementById("semester").innerText = getLevelTitle(level);
+  document.getElementById("exp").innerText = "Exp: " + exp + " / " + expTarget;
+  document.getElementById("judul-ringkasan").innerText ="Ringkasan Bulanan";
+  document.getElementById("judul-riwayat").innerText ="Riwayat Bulanan";
+
+  updateExpBar();
+  tampilkanRiwayat();
+  updateRingkasanBulanan();
+}
+
+/* ======================================================
+   POPUP
+====================================================== */
+
+function bukaPopup(teks, exp = 0, konfirmasi = false) {
+  pendingExp = exp;
+  popupText.innerText = teks;
+  popup.style.display = "flex";
+  document.body.classList.add("modal-open");
+
+  btnCancel.style.display = konfirmasi ? "inline-block" : "none";
+}
+
+function popupOk() {
+  // ===== INPUT NAMA USER =====
+  let inputNama = document.getElementById("input-nama");
+  if (inputNama) {
+    userName = inputNama.value.trim() || "Teman";
+    localStorage.setItem("userName", userName);
+    updateGreeting();
+    tutupPopup();
+    cekHarian();
+    return;
+  }
+
+  // ===== MODE EDIT TRANSAKSI =====
+  if (modePopup === "edit" && indexTransaksiAktif !== null) {
+    let nominalInput = document.getElementById("edit-nominal").value;
+    let nominal = parseInt(nominalInput.replace(/\./g, ""));
+    let keterangan = document.getElementById("edit-keterangan").value.trim();
+
+    if (!nominal || nominal <= 0) {
+      bukaPopup("Nominal tidak valid");
+      return;
+    }
+
+    transaksi[indexTransaksiAktif].amount = nominal;
+    transaksi[indexTransaksiAktif].note = keterangan;
+
+    resetPopupState();
+    simpanData();
+    initFilterRiwayatBulan();
+    tampilkanRiwayat();
+    updateRingkasanBulanan();
+    tutupPopup();
+    return;
+  }
+
+  // ===== MODE KONFIRMASI (HAPUS / RESET DLL) =====
+  if (modePopup === "confirm" && indexTransaksiAktif !== null) {
+    transaksi.splice(indexTransaksiAktif, 1);
+
+    resetPopupState();
+    simpanData();
+    initFilterRiwayatBulan();
+    tampilkanRiwayat();
+    updateRingkasanBulanan();
+    tutupPopup();
+    return;
+  }
+
+  // ===== MODE RESET =====
+if (modePopup === "reset") {
+  localStorage.clear();
+  sessionStorage.setItem("afterReset", "1")
+  location.reload();
+  return;
+}
+
+  // ===== MODE INFO / EXP =====
+  if (pendingExp > 0) {
+  tambahExp(pendingExp);
+  pendingExp = 0;
+}
+
+  tutupPopup();
+}
+
+function tutupPopup() {
+  popup.style.display = "none";
+  document.body.classList.remove("modal-open");
+}
+
+function resetPopupState() {
+  indexTransaksiAktif = null;
+  modePopup = "info";
+}
+
+function popupBatal() {
+  resetPopupState();
+  tutupPopup();
+}
+
+function mintaNamaUser() {
+  const popupText = document.getElementById("popup-text");
+
+  popupText.innerHTML = `
+    <div style="text-align:center;">
+      <p style="font-weight:600; font-size:18px; margin-bottom:6px;">
+        Selamat Datang<br>di Dompet Anak Kos
+      </p>
+
+      <p style="font-size:14px; color:#6B7280; margin-bottom:8px;">
+        Kamu baru pindah kos. Biar catatan keuangan ini terasa lebih personal,
+        kami perlu tahu nama panggilanmu.
+      </p>
+
+      <input
+        type="text"
+        id="input-nama"
+        placeholder="Nama panggilan"
+        style="
+          width:100%;
+          padding:10px;
+          font-size:16px;
+          margin-top:8px;
+          border-radius:8px;
+          border:1px solid #E0E0E0;
+        "
+      />
+    </div>
+  `;
+
+  pendingExp = 0;
+  document.getElementById("popup").style.display = "flex";
+}
+
+function bukaPopupEdit(index) {
+  indexTransaksiAktif = index;
+  modePopup = "edit";
+  document.body.classList.add("modal-open");
+
+  let t = transaksi[index];
+
+  popupText.innerHTML = `
+    <p style="font-weight:600; margin-bottom:8px;">Edit Transaksi</p>
+
+    <input
+      type="text"
+      id="edit-nominal"
+      value="${t.amount.toLocaleString()}"
+      inputmode="numeric"
+      oninput="formatRupiahInput(this)"
+      style="width:100%; padding:10px; font-size:16px; margin-bottom:8px;"
+    />
+
+    <input
+      type="text"
+      id="edit-keterangan"
+      value="${t.note || ""}"
+      placeholder="Keterangan (opsional)"
+      style="width:100%; padding:10px; font-size:14px;"
+    />
+  `;
+
+  btnCancel.style.display = "inline-block";
+  popup.style.display = "flex";
+}
+
+function updateGreeting() {
+  let greet = document.getElementById("greeting");
+
+  if (userName) {
+    greet.innerText = "Halo, " + userName;
+  } else {
+    greet.innerText = "Halo";
+  }
+}
+
+/* ======================================================
+   LEVEL / SEMESTER
+====================================================== */
+function getLevelTitle(level) {
+  if (level === 1) return "Mahasiswa Baru di Kos";
+  if (level === 2) return "Mulai Ngenal Ritme Bulanan";
+  if (level === 3) return "Anak Kos yang Lebih Rapi";
+  if (level === 4) return "Dompet Mulai Terkontrol";
+  if (level === 5) return "Hidup Kos Sudah Stabil";
+  if (level === 6) return "Anak Kos Berpengalaman";
+  if (level === 7) return "Jarang Boncos";
+  if (level === 8) return "Mandiri Secara Finansial";
+  if (level === 9) return "Siap Lulus & Bertahan";
+  return "Legenda Anak Kos";
+}
+
+/* ======================================================
+   STREAK & OPEN APP
+====================================================== */
+function cekHarian() {
+  let today = hariIni();
+
+  if (lastDate === today) return;
+
+  let pesan = "";
+
+  if (!lastDate) {
+    streak = 1;
+    pesan = `Halo, ${userName}
+    
+    Anggap ini buku kecil
+    buat ngecek kondisi kos.
+
+    Mampir sebentar tiap hari,
+    biar kos kamu aman.
+
+    +5 Exp`;
+  } else {
+    let kemarin = new Date();
+    kemarin.setDate(kemarin.getDate() - 1);
+
+    let kemarinStr =
+      `${kemarin.getFullYear()}-${String(kemarin.getMonth() + 1).padStart(2, '0')}-${String(kemarin.getDate()).padStart(2, '0')}`;
+
+    if (lastDate === kemarinStr) {
+      streak += 1;
+      pesan = `Kos dicek hari ini.
+      Barang aman, dompet juga.
+
+      +5 Exp`;
+    } else {
+      streak = 1;
+      pesan = `Kamu baru balik ngecek kos.
+      Beberapa hal sempat terlewat, tapi tidak apa-apa.
+
+      +5 Exp`;
+    }
+  }
+
+  lastDate = today;
+  simpanData();
+  bukaPopup(pesan, 5);
+}
+
+/* ======================================================
+   TRANSAKSI
+====================================================== */
+function bukaForm(type) {
+  jenisTransaksi = type;
+  document.getElementById("tanggal-transaksi").value = hariIni();
+  document.getElementById("nominal").value = "";
+  document.getElementById("keterangan").value = "";
+  document.getElementById("form-title").innerText = type === "expense" ? "Catat Pengeluaran" : "Catat Pemasukan";
+  document.getElementById("form-transaksi").style.display = "block";
+}
+
+function batalTransaksi() {
+  document.getElementById("form-transaksi").style.display = "none";
+}
+
+function simpanTransaksi() {
+  let nominalInput = document.getElementById("nominal").value;
+  let tanggal = document.getElementById("tanggal-transaksi").value || hariIni();
+  let nominal = parseInt(nominalInput.replace(/\./g, ""));
+  let keterangan = document.getElementById("keterangan").value.trim();
+
+  if (!nominal || nominal <= 0) {
+    bukaPopup("Nominal harus lebih dari 0");
+    return;
+  }
+
+  transaksi.push({
+    type: jenisTransaksi,
+    amount: nominal,
+    note: keterangan,
+    date: tanggal
+  });
+
+  localStorage.setItem("transaksi", JSON.stringify(transaksi));
+  batalTransaksi();
+
+  let expJumlah = jenisTransaksi === "expense" ? 8 : 12;
+  let pesan = jenisTransaksi === "expense"
+    ? `Pengeluaran Rp ${nominal.toLocaleString()} dicatat.
+    
+    +${expJumlah} Exp`
+    : `Pemasukan Rp ${nominal.toLocaleString()} dicatat.
+    
+    +${expJumlah} Exp`;
+
+  bukaPopup(pesan, expJumlah);
+}
+
+/* ======================================================
+   RINGKASAN & RIWAYAT
+====================================================== */
+
+function tampilkanRiwayat() {
+  let body = document.getElementById("riwayat-body");
+  body.innerHTML = "";
+
+  let filterBulan =
+    document.getElementById("filter-riwayat-bulan")?.value || bulanIni();
+
+  // update judul sesuai filter
+  document.getElementById("judul-riwayat").innerText =
+    "Riwayat Bulanan";
+
+  let data = transaksi.filter(t =>
+    t.date.startsWith(filterBulan)
+  );
+
+  data.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (data.length === 0) {
+  body.innerHTML = `
+    <tr>
+      <td colspan="5" style="text-align:center; color:#6B7280; padding:16px;">
+        Belum ada catatan di bulan ini.
+      </td>
+    </tr>
+  `;
+  return;
+}
+
+  let income = 0;
+  let expense = 0;
+
+  data.slice().forEach(t => {
+    let realIndex = transaksi.indexOf(t);
+
+    if (t.type === "income") income += t.amount;
+    if (t.type === "expense") expense += t.amount;
+
+    let tr = document.createElement("tr");
+    tr.className = t.type === "expense" ? "expense-row" : "income-row";
+
+    tr.innerHTML = `
+      <td>${formatTanggalPendek(t.date)}</td>
+
+      <td style="font-weight:600; color:${t.type === "expense" ? "#DC2626" : "#16A34A"};">
+        ${t.type === "expense" ? "Pengeluaran" : "Pemasukan"}
+      </td>
+
+      <td>Rp ${t.amount.toLocaleString()}</td>
+
+      <td>${t.note || "—"}</td>
+
+      <td>
+        <button class="action-btn" onclick="bukaPopupEdit(${realIndex})">✏️</button>
+        <button class="action-btn delete" onclick="konfirmasiHapus(${realIndex})">🗑</button>
+      </td>
+    `;
+
+    body.appendChild(tr);
+  });
+}
+
+function konfirmasiHapus(index) {
+  indexTransaksiAktif = index;
+  modePopup = "confirm";
+
+  let t = transaksi[index];
+
+  bukaPopup(
+    "Catatan ini akan dihapus.\n\n" +
+    (t.type === "expense" ? "Pengeluaran" : "Pemasukan") +
+    "\nRp " + t.amount.toLocaleString() +
+    (t.note ? "\n" + t.note : ""),
+    0,
+    true
+  );
+}
+
+/* ======================================================
+   RESET
+====================================================== */
+function konfirmasiReset() {
+  modePopup = "reset";
+  indexTransaksiAktif = null;
+
+  bukaPopup(
+    "Kamu akan pindah kos.\n\n" +
+    "Semua catatan lama\nakan ditinggalkan.\n\n" +
+    "Mulai dari awal di tempat baru.",
+    0,
+    true
+  );
+}
+
+/* ======================================================
+   DARK MODE
+====================================================== */
+function toggleDarkMode() {
+  let isDark = document.body.classList.toggle("dark");
+  localStorage.setItem("darkMode", isDark ? "on" : "off");
+  updateDarkButton();
+}
+
+function updateDarkButton() {
+  let btn = document.getElementById("dark-toggle");
+  if (!btn) return;
+
+  if (document.body.classList.contains("dark")) {
+    btn.innerText = "☀️";
+  } else {
+    btn.innerText = "🌙";
+  }
+}
+
+function updateExpBar() {
+  let persen = Math.min(
+    100,
+    Math.floor((exp / expTarget) * 100)
+  );
+
+  document.getElementById("exp-fill").style.width = persen + "%";
+}
+
+/* ======================================================
+   INIT
+====================================================== */
+updateUI();
+initFilterRiwayatBulan();
+
+if (!userName) {
+  mintaNamaUser();
+} else {
+  cekHarian();
+}
+
+let darkPref = localStorage.getItem("darkMode");
+if (darkPref === "on") {
+  document.body.classList.add("dark");
+}
+updateDarkButton();
+
+if (sessionStorage.getItem("afterReset") === "1") {
+  sessionStorage.removeItem("afterReset");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+function formatRupiahInput(el) {
+  let angka = el.value.replace(/\D/g, "");
+  el.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function updateRingkasanBulanan() {
+  let bulan = bulanIni();
+
+  let income = 0;
+  let expense = 0;
+
+  transaksi.forEach(t => {
+    if (!t.date.startsWith(bulan)) return;
+
+    if (t.type === "income") income += t.amount;
+    if (t.type === "expense") expense += t.amount;
+  });
+
+  let net = income - expense;
+
+  document.getElementById("bulan-income").innerText =
+    "Rp " + income.toLocaleString();
+
+  document.getElementById("bulan-expense").innerText =
+    "Rp " + expense.toLocaleString();
+
+  let netEl = document.getElementById("bulan-net");
+  netEl.innerText = "Rp " + net.toLocaleString();
+  netEl.style.color = net < 0 ? "#DC2626" : "#2563EB";
+}
+
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let filterBulan =
+    document.getElementById("filter-riwayat-bulan")?.value || bulanIni();
+
+  let data = transaksi.filter(t =>
+    t.date.startsWith(filterBulan)
+  );
+
+  data.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  let income = 0;
+  let expense = 0;
+
+  data.forEach(t => {
+    if (t.type === "income") income += t.amount;
+    if (t.type === "expense") expense += t.amount;
+  });
+
+  let sisa = income - expense;
+
+  // ===== LAYOUT =====
+  const startY = 26;
+  const rowHeight = 8;
+
+  const col = {
+    tanggal:    { left: 14,  right: 40 },
+    transaksi:  { left: 40,  right: 90 },
+    nominal:    { left: 90,  right: 130 },
+    keterangan: { left: 130, right: 196 }
+  };
+
+  function mid(c) {
+    return (c.left + c.right) / 2;
+  }
+
+  let y = startY;
+
+  // ===== JUDUL =====
+  doc.setFontSize(14);
+  doc.text(
+    "Riwayat Transaksi Bulan " + formatLabelBulan(filterBulan),
+    105,
+    16,
+    { align: "center" }
+  );
+
+  doc.setFontSize(10);
+
+  function drawRowLine() {
+    doc.line(14, y, 196, y);
+  }
+
+  function drawVerticalLines(topY, bottomY) {
+    Object.values(col).forEach(c => {
+      doc.line(c.left, topY, c.left, bottomY);
+    });
+    doc.line(196, topY, 196, bottomY);
+  }
+
+  // ===== HEADER =====
+  drawRowLine();
+  y += rowHeight;
+
+  doc.text("Tanggal", mid(col.tanggal), y - 3, { align: "center" });
+  doc.text("Transaksi", mid(col.transaksi), y - 3, { align: "center" });
+  doc.text("Nominal", mid(col.nominal), y - 3, { align: "center" });
+  doc.text("Keterangan", mid(col.keterangan), y - 3, { align: "center" });
+
+  drawRowLine();
+  drawVerticalLines(startY, y);
+
+  // ===== DATA =====
+  if (data.length === 0) {
+    y += rowHeight;
+    doc.text("Tidak ada transaksi.", 105, y - 3, { align: "center" });
+    drawRowLine();
+  } else {
+    data.forEach(t => {
+      y += rowHeight;
+
+      doc.text(formatTanggalPendek(t.date), mid(col.tanggal), y - 3, { align: "center" });
+      doc.text(
+        t.type === "expense" ? "Pengeluaran" : "Pemasukan",
+        mid(col.transaksi),
+        y - 3,
+        { align: "center" }
+      );
+      doc.text(
+        "Rp " + t.amount.toLocaleString(),
+        mid(col.nominal),
+        y - 3,
+        { align: "center" }
+      );
+      doc.text(t.note || "-", mid(col.keterangan), y - 3, { align: "center" });
+
+      drawRowLine();
+
+      if (y > 270) {
+        drawVerticalLines(startY, y);
+        doc.addPage();
+        y = startY;
+        drawRowLine();
+      }
+    });
+  }
+
+  drawVerticalLines(startY, y);
+
+  // ===== SISA =====
+  y += rowHeight + 4;
+  doc.setFontSize(11);
+  doc.text("Sisa", mid(col.keterangan), y, { align: "center" });
+  doc.text(
+    "Rp " + sisa.toLocaleString(),
+    196,
+    y,
+    { align: "right" }
+  );
+
+  doc.save(`riwayat-${filterBulan}.pdf`);
+}
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+</html>
